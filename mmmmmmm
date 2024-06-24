@@ -1,0 +1,79 @@
+import numpy as np
+
+# Function to initialize the game grid
+def initialize_game(grid_size):
+    # Create a grid filled with zeros
+    grid = np.zeros((grid_size, grid_size), dtype=int)
+    
+    # Randomly place the player and goal
+    player_pos = np.random.randint(0, grid_size, size=2)
+    goal_pos = np.random.randint(0, grid_size, size=2)
+    
+    # Ensure player and goal are not in the same position
+    while np.array_equal(player_pos, goal_pos):
+        goal_pos = np.random.randint(0, grid_size, size=2)
+    
+    grid[tuple(player_pos)] = 1  # Player represented by 1
+    grid[tuple(goal_pos)] = 2    # Goal represented by 2
+    
+    return grid, player_pos, goal_pos
+
+# Function to print the game grid
+def print_grid(grid):
+    grid_str = np.array_str(grid).replace('[', '').replace(']', '').replace('0', '_').replace('1', 'P').replace('2', 'G')
+    print(grid_str)
+
+# Function to move the player
+def move_player(grid, player_pos, move):
+    # Copy the original position
+    new_pos = player_pos.copy()
+    
+    # Perform the move
+    if move == 'up':
+        new_pos[0] -= 1
+    elif move == 'down':
+        new_pos[0] += 1
+    elif move == 'left':
+        new_pos[1] -= 1
+    elif move == 'right':
+        new_pos[1] += 1
+    else:
+        print("Invalid move. Please use 'up', 'down', 'left', or 'right'.")
+        return grid, player_pos, False
+    
+    # Check if new position is within grid bounds
+    grid_size = grid.shape[0]
+    if 0 <= new_pos[0] < grid_size and 0 <= new_pos[1] < grid_size:
+        # Update the grid and player position
+        grid[tuple(player_pos)] = 0
+        grid[tuple(new_pos)] = 1
+        player_pos[:] = new_pos[:]
+        
+        return grid, player_pos, True
+    else:
+        print("Invalid move. Out of bounds.")
+        return grid, player_pos, False
+
+# Main game loop
+def play_game(grid_size):
+    grid, player_pos, goal_pos = initialize_game(grid_size)
+    print("Welcome to the game!")
+    
+    while True:
+        print_grid(grid)
+        move = input("Enter your move (up/down/left/right): ").lower()
+        
+        grid, player_pos, moved = move_player(grid, player_pos, move)
+        
+        if moved:
+            if np.array_equal(player_pos, goal_pos):
+                print_grid(grid)
+                print("Congratulations! You reached the goal!")
+                break
+        else:
+            print("Try again.")
+            
+# Start the game
+if _name_ == "_main_":
+    grid_size = 5  # Adjust grid size as needed
+    play_game(grid_size)
